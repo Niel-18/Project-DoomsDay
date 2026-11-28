@@ -3,6 +3,22 @@
   "use strict";
 
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var lenis = null;
+
+  if (typeof window.Lenis === "function") {
+    lenis = new window.Lenis({
+      autoRaf: true,
+      anchors: true,
+      lerp: 0.1,
+      smoothWheel: true,
+      wheelMultiplier: 0.95,
+      touchMultiplier: 1,
+      syncTouch: false,
+      respectReducedMotion: true,
+      autoResize: true
+    });
+    window.addEventListener("pagehide", function () { lenis.destroy(); }, { once: true });
+  }
 
   /* ---------- Image loader: local file first, then OpenArt fallback ---------- */
   (function () {
@@ -73,10 +89,87 @@
     tick();
   })();
 
-  /* ---------- Registration frame: show a note until src is set ---------- */
+  /* ---------- Registration sample form: validation + success state ---------- */
   (function () {
-    var f = document.getElementById("regFrame");
-    if (f && !f.getAttribute("src")) f.classList.add("empty");
+    var form = document.getElementById("registrationForm");
+    var frame = document.getElementById("registrationFormFrame");
+    var success = document.getElementById("formSuccess");
+    var reset = document.getElementById("resetRegistration");
+    if (!form || !frame || !success) return;
+
+    var fields = Array.prototype.slice.call(form.querySelectorAll("input, select"));
+    var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+    function fieldWrap(input) {
+      return input.closest(".field");
+    }
+    function setError(input, message) {
+      var wrap = fieldWrap(input);
+      var error = wrap && wrap.querySelector(".field-error");
+      if (error) error.textContent = message;
+      if (wrap) wrap.classList.toggle("invalid", !!message);
+      if (message) input.setAttribute("aria-invalid", "true");
+      else input.removeAttribute("aria-invalid");
+    }
+    function validate(input) {
+      var value = input.value.trim();
+      if (!value) {
+        setError(input, "This field is required.");
+        return false;
+      }
+      if (input.type === "email" && !emailPattern.test(value)) {
+        setError(input, "Enter a valid email address.");
+        return false;
+      }
+      if (input.type === "tel") {
+        var digits = value.replace(/\D/g, "");
+        if (!/^[+\d\s().-]+$/.test(value) || digits.length < 7 || digits.length > 15) {
+          setError(input, "Enter a valid phone number.");
+          return false;
+        }
+      }
+      setError(input, "");
+      return true;
+    }
+
+    fields.forEach(function (input) {
+      input.addEventListener("blur", function () { validate(input); });
+      input.addEventListener("input", function () {
+        if (input.getAttribute("aria-invalid") === "true") validate(input);
+      });
+      input.addEventListener("change", function () { validate(input); });
+    });
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      var firstInvalid = null;
+      fields.forEach(function (input) {
+        if (!validate(input) && !firstInvalid) firstInvalid = input;
+      });
+      if (firstInvalid) {
+        firstInvalid.focus();
+        return;
+      }
+
+      form.hidden = true;
+      success.hidden = false;
+      frame.classList.add("is-success", "impact-now");
+      success.focus();
+      window.setTimeout(function () {
+        frame.classList.remove("impact-now");
+      }, 900);
+    });
+
+    if (reset) {
+      reset.addEventListener("click", function () {
+        form.reset();
+        form.hidden = false;
+        success.hidden = true;
+        frame.classList.remove("is-success", "impact-now");
+        fields.forEach(function (input) { setError(input, ""); });
+        fields[0].focus();
+      });
+    }
   })();
 
   /* ---------- Reduced motion: show everything, skip the scroll engine ---------- */
@@ -268,6 +361,7 @@
   }
 
   window.addEventListener("scroll", onScroll, { passive: true });
+  if (lenis) lenis.on("scroll", onScroll);
   window.addEventListener("resize", function () { vh = window.innerHeight; onScroll(); });
 
   /* ---------- Subtle 3D tilt on cards ---------- */
@@ -308,4 +402,109 @@
   })();
 
   render();
+})();
+
+(function () {
+  "use strict";
+
+  var finePointer = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  if (!finePointer) return;
+
+  var cursor = document.querySelector(".stormbreaker-cursor");
+  var image = cursor && cursor.querySelector("img");
+  if (!cursor || !image) return;
+
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var x = -100;
+  var y = -100;
+  var targetX = x;
+  var targetY = y;
+  var rafId = 0;
+  var active = false;
+  var hovering = false;
+  var impactTimer = 0;
+
+  function place() {
+    var width = cursor.offsetWidth || 54;
+    var height = image.offsetHeight || width;
+    cursor.style.transform = "translate3d(" + (x - width * 0.5) + "px," + (y - height * 0.18) + "px,0)";
+  }
+
+  function tick() {
+    var dx = targetX - x;
+    var dy = targetY - y;
+    if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) {
+      x = targetX;
+      y = targetY;
+      place();
+      rafId = 0;
+      return;
+    }
+    x += dx * 0.42;
+    y += dy * 0.42;
+    place();
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function activate() {
+    if (active) return;
+    active = true;
+    document.documentElement.classList.add("stormbreaker-cursor-active");
+    cursor.classList.add("is-visible");
+  }
+
+  function onMove(event) {
+    if (event.pointerType === "touch") return;
+    targetX = event.clientX;
+    targetY = event.clientY;
+    activate();
+    if (reduce) {
+      x = targetX;
+      y = targetY;
+      place();
+      return;
+    }
+    if (!rafId) rafId = requestAnimationFrame(tick);
+    var interactive = !!(event.target && event.target.closest && event.target.closest("a, button, input, select, textarea, [role='button']"));
+    if (interactive !== hovering) {
+      hovering = interactive;
+      cursor.classList.toggle("is-hover", interactive);
+    }
+  }
+
+  function onDown(event) {
+    if (event.pointerType === "touch" || reduce) return;
+    activate();
+    cursor.classList.remove("is-click");
+    void cursor.offsetWidth;
+    cursor.classList.add("is-click");
+    window.clearTimeout(impactTimer);
+    impactTimer = window.setTimeout(function () {
+      cursor.classList.remove("is-click");
+    }, 300);
+  }
+
+  function onBlur() {
+    cursor.classList.remove("is-visible");
+  }
+
+  function onFocus() {
+    if (active) cursor.classList.add("is-visible");
+  }
+
+  image.addEventListener("error", function () {
+    if (rafId) cancelAnimationFrame(rafId);
+    document.documentElement.classList.remove("stormbreaker-cursor-active");
+    cursor.remove();
+  }, { once: true });
+
+  window.addEventListener("pointermove", onMove, { passive: true });
+  window.addEventListener("pointerdown", onDown, { passive: true });
+  window.addEventListener("blur", onBlur);
+  window.addEventListener("focus", onFocus);
+  window.addEventListener("pagehide", function () {
+    if (rafId) cancelAnimationFrame(rafId);
+    window.clearTimeout(impactTimer);
+    document.documentElement.classList.remove("stormbreaker-cursor-active");
+  }, { once: true });
 })();

@@ -8,15 +8,25 @@
 <script>document.documentElement.className+=' js';</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Teko:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/lenis@1.3.29/dist/lenis.css">
 <link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="shortcut icon" href="favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+<link rel="manifest" href="site.webmanifest" />
 </head>
 <body>
 
+<div class="stormbreaker-cursor" aria-hidden="true"><img src="Avengers_images/Hammer.png" alt=""></div>
 <div class="scroll-progress" aria-hidden="true"><span></span></div>
 <div class="ambient" aria-hidden="true"><span></span><span></span><span></span></div>
 
 <header class="nav" id="top">
+  <div class="cir">
+    <img src="images/CodeoHolics_logo.png">
+  </div>
   <a href="#top" class="brand">PROJECT <span>DOOMSDAY</span></a>
   <nav>
     <a href="#about">About</a>
@@ -48,7 +58,7 @@
   <div class="hero-shade"></div>
   <div class="hero-vignette"></div>
   <div class="hero-inner">
-    <p class="kicker">Codeoholics Community presents</p>
+    <p class="kicker"><b>CodeoHolics</b> Community presents</p>
     <h1 class="title">
       <span class="t1 split-target">PROJECT</span>
       <span class="t2 split-target">DOOMSDAY</span>
@@ -63,7 +73,8 @@
       <a href="#activities" class="btn btn-ghost">See the Missions</a>
     </div>
   </div>
-  <div class="scroll-cue">SCROLL ▼</div>
+  <div class="scroll-cue">SCROLL ▼ <br>TO REGISTER</br></div>
+  
 </section>
 
 <!-- COUNTDOWN -->
@@ -175,8 +186,10 @@
 
 <!-- FIELD IMAGE -->
 <section class="wide-panel">
+  <img src="Avengers_images/Thor_left.png" class="avg_img thor" alt="">
+  <img src="Avengers_images/Loki_right.png" class="loki avg_img" alt="loki img">
   <div class="wide-cap" data-parallax="0.05">
-    <h2 class="split-target">HUMAN <em>JUDGMENT</em> vs MACHINE SPEED</h2>
+    <h2  style="position: absoluteS;" class="split-target">HUMAN <em>JUDGMENT</em> vs MACHINE SPEED</h2>
     <p>Use AI. Verify AI. Outthink AI.</p>
   </div>
 </section>
@@ -207,20 +220,71 @@
   <video class="register-bg bg-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
     <source src="images/Hero_Video.mp4" type="video/mp4">
   </video>
-  <div class="container narrow">
+  <div class="container register-stage">
     <h2 class="h2 center split-target">ENLIST <em>NOW</em></h2>
-    <p class="lead center">Fill in the form below and choose your mission: Stark Tank or Mission VI.</p>
-    <div class="form-frame">
-      <!-- PASTE YOUR GOOGLE FORM EMBED HERE.
-           Replace the empty src="" below with your form's embed link, e.g.
-           src="https://docs.google.com/forms/d/e/XXXXXXXX/viewform?embedded=true" -->
-      <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfpG-LGzwhOoUunCiv4p36IahxYMI9Fsrtq_HYve9ZKccNwrg/viewform?embedded=true" width="640" height="419" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+    <p class="lead center">Fill in the form below to enlist. This is a frontend sample — no data is sent or stored.</p>
+
+    <div class="register-composition">
+      <div class="form-frame" id="registrationFormFrame">
+        <span class="form-flare" aria-hidden="true"></span>
+        <form class="register-form" id="registrationForm" novalidate>
+          <div class="form-grid">
+            <div class="field">
+              <label for="reg-name">Full Name</label>
+              <input id="reg-name" name="fullName" type="text" autocomplete="name" placeholder="Your full name" required aria-describedby="reg-name-error">
+              <span class="field-error" id="reg-name-error" aria-live="polite"></span>
+            </div>
+            <div class="field">
+              <label for="reg-email">Email Address</label>
+              <input id="reg-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="reg-email-error">
+              <span class="field-error" id="reg-email-error" aria-live="polite"></span>
+            </div>
+            <div class="field field--wide">
+              <label for="reg-college">College / University</label>
+              <input id="reg-college" name="college" type="text" autocomplete="organization" placeholder="Your institution" required aria-describedby="reg-college-error">
+              <span class="field-error" id="reg-college-error" aria-live="polite"></span>
+            </div>
+            <div class="field">
+              <label for="reg-phone">Phone Number</label>
+              <input id="reg-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+91 98765 43210" required aria-describedby="reg-phone-error">
+              <span class="field-error" id="reg-phone-error" aria-live="polite"></span>
+            </div>
+            <div class="field">
+              <label for="reg-team">Team Name</label>
+              <input id="reg-team" name="teamName" type="text" placeholder="Your team name" required aria-describedby="reg-team-error">
+              <span class="field-error" id="reg-team-error" aria-live="polite"></span>
+            </div>
+            <div class="field field--wide">
+              <label for="reg-size">Number of Team Members</label>
+              <select id="reg-size" name="teamSize" required aria-describedby="reg-size-error">
+                <option value="" selected disabled>Select team size</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+              <span class="field-error" id="reg-size-error" aria-live="polite"></span>
+            </div>
+          </div>
+          <button class="btn btn-submit" type="submit">Submit Registration</button>
+        </form>
+        <div class="form-success" id="formSuccess" role="status" tabindex="-1" hidden>
+          <h3>Enlistment Received</h3>
+          <p>Sample submission complete. No data was sent or stored — this form is ready for a future backend integration.</p>
+          <button class="btn btn-ghost" type="button" id="resetRegistration">Submit another sample</button>
+        </div>
+      </div>
+
+      <div class="cyclops-wrap">
+        <img src="images/Cyclops.png" class="cy" alt="Cyclops beneath the registration form">
+      </div>
     </div>
   </div>
 </section>
 
 <!-- FOOTER -->
-<footer class="footer">
+<footer class="footer" style="position: relative;">
+  <img src="Avengers_images/Steve.png" class="avg_img steve" alt="steve">
   <div class="container foot-grid">
     <div>
       <div class="brand big">PROJECT <span>DOOMSDAY</span></div>
@@ -240,6 +304,7 @@
 
 <div class="chapter-rail" aria-hidden="true"></div>
 
+<script src="https://unpkg.com/lenis@1.3.29/dist/lenis.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
